@@ -1,0 +1,19 @@
+.panel {
+  padding: 0;
+  margin: 0;
+  list-style-type: none;
+  display: flex;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.panel li {
+  padding: 10px;
+  cursor: pointer;
+  border: 1px solid blueviolet;
+  border-radius: 10%;
+  color: darkslategray;
+}
+.panel li + li {
+  margin-left: 5px;
+}
