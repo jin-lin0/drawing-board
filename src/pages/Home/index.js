@@ -45,6 +45,29 @@ const Home = () => {
     // document.body.appendChild(img);
   };
 
+  const onListenMouseDown = (x, y) => {
+    let ctx = canvasRef.current.getContext("2d");
+    painting.current = true;
+    startPoint.current = { x, y };
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(x, y, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.closePath();
+  };
+
+  const onListenMouseMove = (x, y) => {
+    let ctx = canvasRef.current.getContext("2d");
+    if (painting.current) {
+      endPoint.current = { x, y };
+      ctx.moveTo(startPoint.current.x, startPoint.current.y);
+      ctx.lineTo(endPoint.current.x, endPoint.current.y);
+      ctx.stroke();
+      ctx.closePath();
+      startPoint.current = endPoint.current;
+    }
+  };
+
   useEffect(() => {
     const canvas = canvasRef.current;
     let ctx = canvas.getContext("2d");
@@ -61,57 +84,10 @@ const Home = () => {
 
   useEffect(() => {
     let canvas = canvasRef.current;
-    let ctx = canvas.getContext("2d");
     canvas.width = document.documentElement.clientWidth;
     canvas.height = document.documentElement.clientHeight;
     initStyle();
-
-    function onListenMouseDown(x, y) {
-      painting.current = true;
-      startPoint.current = { x, y };
-      ctx.save();
-      ctx.beginPath();
-      ctx.arc(x, y, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.closePath();
-    }
-
-    function onListenMouseMove(x, y) {
-      if (painting.current) {
-        endPoint.current = { x, y };
-        ctx.moveTo(startPoint.current.x, startPoint.current.y);
-        ctx.lineTo(endPoint.current.x, endPoint.current.y);
-        ctx.stroke();
-        ctx.closePath();
-        startPoint.current = endPoint.current;
-      }
-    }
-
-    canvas.onmousedown = function (e) {
-      onListenMouseDown(e.clientX, e.clientY);
-    };
-    canvas.ontouchstart = function (e) {
-      onListenMouseDown(e.touches[0].clientX, e.touches[0].clientY);
-    };
-
-    canvas.onmousemove = function (e) {
-      window.requestAnimationFrame(() =>
-        onListenMouseMove(e.clientX, e.clientY)
-      );
-    };
-    canvas.ontouchmove = function (e) {
-      e.preventDefault();
-      window.requestAnimationFrame(() =>
-        onListenMouseMove(e.touches[0].clientX, e.touches[0].clientY)
-      );
-    };
-    canvas.onmouseup = function (e) {
-      onRemoveState();
-    };
-    canvas.ontouchend = function (e) {
-      onRemoveState();
-    };
-  });
+  }, [canvasRef.current]);
 
   return (
     <div className="Home">
@@ -120,7 +96,27 @@ const Home = () => {
         <li onClick={onSaveImg}>导出</li>
       </ul>
 
-      <canvas ref={canvasRef}></canvas>
+      <canvas
+        ref={canvasRef}
+        onMouseDown={(e) => onListenMouseDown(e.clientX, e.clientY)}
+        onTouchStart={(e) =>
+          onListenMouseDown(e.touches[0].clientX, e.touches[0].clientY)
+        }
+        onMouseUp={onRemoveState}
+        onTouchEnd={onRemoveState}
+        onMouseMove={(e) => {
+          e.preventDefault();
+          window.requestAnimationFrame(() =>
+            onListenMouseMove(e.clientX, e.clientY)
+          );
+        }}
+        onTouchMove={(e) => {
+          e.preventDefault();
+          window.requestAnimationFrame(() =>
+            onListenMouseMove(e.touches[0].clientX, e.touches[0].clientY)
+          );
+        }}
+      ></canvas>
     </div>
   );
 };
