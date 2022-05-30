@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "./index.css";
 
 /** @type {HTMLCanvasElement} */
@@ -11,7 +11,6 @@ const Home = () => {
   function initStyle() {
     const canvas = canvasRef.current;
     let ctx = canvas.getContext("2d");
-    ctx.strokeStyle = "blue";
     ctx.lineWidth = 5;
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
@@ -45,6 +44,12 @@ const Home = () => {
     // document.body.appendChild(img);
   };
 
+  const onChooseColor = (e) => {
+    const canvas = canvasRef.current;
+    let ctx = canvas.getContext("2d");
+    ctx.strokeStyle = e.target.value;
+  };
+
   const onListenMouseDown = (x, y) => {
     let ctx = canvasRef.current.getContext("2d");
     painting.current = true;
@@ -57,15 +62,17 @@ const Home = () => {
   };
 
   const onListenMouseMove = (x, y) => {
-    let ctx = canvasRef.current.getContext("2d");
-    if (painting.current) {
-      endPoint.current = { x, y };
-      ctx.moveTo(startPoint.current.x, startPoint.current.y);
-      ctx.lineTo(endPoint.current.x, endPoint.current.y);
-      ctx.stroke();
-      ctx.closePath();
-      startPoint.current = endPoint.current;
-    }
+    window.requestAnimationFrame(() => {
+      let ctx = canvasRef.current.getContext("2d");
+      if (painting.current) {
+        endPoint.current = { x, y };
+        ctx.moveTo(startPoint.current.x, startPoint.current.y);
+        ctx.lineTo(endPoint.current.x, endPoint.current.y);
+        ctx.stroke();
+        ctx.closePath();
+        startPoint.current = endPoint.current;
+      }
+    });
   };
 
   useEffect(() => {
@@ -79,6 +86,9 @@ const Home = () => {
       ctx.putImageData(canvasData, 0, 0);
     }
     window.onresize = onResize;
+    document.body.addEventListener("touchmove", (e) => e.preventDefault(), {
+      passive: false,
+    });
     return window.removeEventListener("resize", onResize);
   }, []);
 
@@ -94,6 +104,7 @@ const Home = () => {
       <ul className="panel">
         <li onClick={onClearScreen}>清屏</li>
         <li onClick={onSaveImg}>导出</li>
+        <input type="color" onChange={onChooseColor} />
       </ul>
 
       <canvas
@@ -105,16 +116,10 @@ const Home = () => {
         onMouseUp={onRemoveState}
         onTouchEnd={onRemoveState}
         onMouseMove={(e) => {
-          e.preventDefault();
-          window.requestAnimationFrame(() =>
-            onListenMouseMove(e.clientX, e.clientY)
-          );
+          onListenMouseMove(e.clientX, e.clientY);
         }}
         onTouchMove={(e) => {
-          e.preventDefault();
-          window.requestAnimationFrame(() =>
-            onListenMouseMove(e.touches[0].clientX, e.touches[0].clientY)
-          );
+          onListenMouseMove(e.touches[0].clientX, e.touches[0].clientY);
         }}
       ></canvas>
     </div>

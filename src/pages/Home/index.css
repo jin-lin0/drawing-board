@@ -3,10 +3,17 @@
   margin: 0;
   list-style-type: none;
   display: flex;
+  align-items: center;
   position: absolute;
   top: 0;
   left: 0;
 }
+
+.panel li,
+.panel input {
+  margin-right: 5px;
+}
+
 .panel li {
   padding: 10px;
   cursor: pointer;
@@ -14,6 +21,12 @@
   border-radius: 10%;
   color: darkslategray;
 }
-.panel li + li {
-  margin-left: 5px;
+
+.panel input {
+  padding: 0;
+  width: 3rem;
+  height: 3rem;
+  border: none;
+  background: none;
+  overflow: hidden;
 }
