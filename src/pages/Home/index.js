@@ -1,5 +1,8 @@
+import classNames from "classnames";
 import React, { useEffect, useRef, useState } from "react";
-import "./index.css";
+import { AiFillDelete, AiTwotoneSave } from "react-icons/ai";
+import { colorPanelConfig } from "./config";
+import "./index.less";
 
 /** @type {HTMLCanvasElement} */
 const Home = () => {
@@ -7,6 +10,7 @@ const Home = () => {
   const painting = useRef(false);
   const startPoint = useRef({ x: undefined, y: undefined });
   const endPoint = useRef({ x: undefined, y: undefined });
+  const colorIndex = useRef(-1);
 
   function initStyle() {
     const canvas = canvasRef.current;
@@ -48,6 +52,13 @@ const Home = () => {
     const canvas = canvasRef.current;
     let ctx = canvas.getContext("2d");
     ctx.strokeStyle = e.target.value;
+  };
+
+  const onChooseSpecialColor = (hex) => {
+    const canvas = canvasRef.current;
+    let ctx = canvas.getContext("2d");
+    console.log(hex);
+    ctx.strokeStyle = hex;
   };
 
   const onListenMouseDown = (x, y) => {
@@ -102,9 +113,27 @@ const Home = () => {
   return (
     <div className="Home">
       <ul className="panel">
-        <li onClick={onClearScreen}>清屏</li>
-        <li onClick={onSaveImg}>导出</li>
-        <input type="color" onChange={onChooseColor} />
+        <input type="color" onChange={onChooseColor} onClick={onChooseColor} />
+        {colorPanelConfig.map((item, index) => (
+          <div
+            key={index}
+            className={classNames([
+              "color-item",
+              `color-item-${item.name}`,
+              { "color-item-active": index === colorIndex.current },
+            ])}
+            onClick={() => {
+              onChooseSpecialColor(item.color);
+              colorIndex.current = index;
+            }}
+          ></div>
+        ))}
+        <li onClick={onClearScreen}>
+          <AiFillDelete />
+        </li>
+        <li onClick={onSaveImg}>
+          <AiTwotoneSave />
+        </li>
       </ul>
 
       <canvas

@@ -1,0 +1,67 @@
+.panel {
+  padding: 0;
+  margin: 0;
+  list-style-type: none;
+  display: flex;
+  align-items: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  input li {
+    margin-right: 5px;
+  }
+  li {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 2rem;
+    height: 2rem;
+    cursor: pointer;
+    border-radius: 50%;
+    color: darkslategray;
+    svg {
+      font-size: 1.5rem;
+    }
+  }
+  input {
+    padding: 0;
+    width: 3rem;
+    height: 3rem;
+    border: none;
+    background: none;
+    overflow: hidden;
+  }
+}
+
+.color-item {
+  margin: 0 0.3rem;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  cursor: pointer;
+
+  &-pink {
+    background: #ff69b4;
+    color: #ff69b4;
+  }
+  &-yellow {
+    background: #ffff00;
+    color: #ffff00;
+  }
+  &-red {
+    color: #ff0000;
+    background: #ff0000;
+  }
+  &-green {
+    color: #00ff00;
+    background: #00ff00;
+  }
+  &-blue {
+    color: #0000ff;
+    background: #0000ff;
+  }
+  &-active {
+    box-shadow: 0 0 10px currentColor;
+  }
+}
