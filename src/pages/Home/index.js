@@ -42,7 +42,7 @@ const Home = () => {
     exportDOM.download = "DrawingBoard_" + new Date().getTime() + ".png";
     exportDOM.target = "__blank";
     exportDOM.click();
-    // todo 移动端
+    // todo 移动端下载
     // let img = new Image();
     // img.src = imgUrl;
     // document.body.appendChild(img);
@@ -52,6 +52,12 @@ const Home = () => {
     const canvas = canvasRef.current;
     let ctx = canvas.getContext("2d");
     ctx.strokeStyle = e.target.value;
+  };
+
+  const onChangeLineWidth = (e) => {
+    const canvas = canvasRef.current;
+    let ctx = canvas.getContext("2d");
+    ctx.lineWidth = e.target.value;
   };
 
   const onChooseSpecialColor = (hex) => {
@@ -93,10 +99,10 @@ const Home = () => {
       let canvasData = ctx.getImageData(0, 0, canvas.width, canvas.height);
       canvas.width = document.documentElement.clientWidth;
       canvas.height = document.documentElement.clientHeight;
-      initStyle();
+      //todo 颜色/粗细会丢失
       ctx.putImageData(canvasData, 0, 0);
     }
-    window.onresize = onResize;
+    // window.onresize = onResize;
     document.body.addEventListener("touchmove", (e) => e.preventDefault(), {
       passive: false,
     });
@@ -134,6 +140,18 @@ const Home = () => {
         <li onClick={onSaveImg}>
           <AiTwotoneSave />
         </li>
+        <select
+          className="lineWidth"
+          defaultValue={5}
+          onChange={onChangeLineWidth}
+        >
+          <option value={50}>50</option>
+          <option value={20}>20</option>
+          <option value={10}>10</option>
+          <option value={5}>5</option>
+          <option value={2}>2</option>
+          <option value={1}>1</option>
+        </select>
       </ul>
 
       <canvas
