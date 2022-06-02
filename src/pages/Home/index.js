@@ -1,6 +1,7 @@
 import classNames from "classnames";
 import React, { useEffect, useRef, useState } from "react";
-import { AiFillDelete, AiTwotoneSave } from "react-icons/ai";
+import { AiOutlineClear, AiTwotoneSave } from "react-icons/ai";
+import { BsFillEraserFill } from "react-icons/bs";
 import { colorPanelConfig } from "./config";
 import "./index.less";
 
@@ -8,9 +9,12 @@ import "./index.less";
 const Home = () => {
   const canvasRef = useRef(null);
   const painting = useRef(false);
+  const clearing = useRef(false);
   const startPoint = useRef({ x: undefined, y: undefined });
   const endPoint = useRef({ x: undefined, y: undefined });
-  const colorIndex = useRef(-1);
+  const [activeItem, setActiveItem] = useState(-1);
+  const [status, setStatus] = useState("paint");
+  const [lineWidth, setLineWidth] = useState(5);
 
   function initStyle() {
     const canvas = canvasRef.current;
@@ -22,6 +26,7 @@ const Home = () => {
 
   const onRemoveState = () => {
     painting.current = false;
+    clearing.current = false;
     startPoint.current = null;
     endPoint.current = null;
   };
@@ -31,6 +36,7 @@ const Home = () => {
     const canvas = canvasRef.current;
     let ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    setStatus("paint");
   };
 
   const onSaveImg = () => {
@@ -47,40 +53,52 @@ const Home = () => {
     // img.src = imgUrl;
     // document.body.appendChild(img);
   };
+  const onActiveEraser = () => {
+    setStatus("eraser");
+    setActiveItem("eraser");
+  };
 
   const onChooseColor = (e) => {
     const canvas = canvasRef.current;
     let ctx = canvas.getContext("2d");
     ctx.strokeStyle = e.target.value;
+    setStatus("paint");
+    setActiveItem("color");
   };
 
   const onChangeLineWidth = (e) => {
     const canvas = canvasRef.current;
     let ctx = canvas.getContext("2d");
     ctx.lineWidth = e.target.value;
+    setLineWidth(e.target.value);
   };
 
   const onChooseSpecialColor = (hex) => {
     const canvas = canvasRef.current;
     let ctx = canvas.getContext("2d");
-    console.log(hex);
     ctx.strokeStyle = hex;
+    setStatus("paint");
   };
 
   const onListenMouseDown = (x, y) => {
     let ctx = canvasRef.current.getContext("2d");
-    painting.current = true;
-    startPoint.current = { x, y };
-    ctx.save();
-    ctx.beginPath();
-    ctx.arc(x, y, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.closePath();
+    if (status === "eraser") {
+      clearing.current = true;
+      ctx.clearRect(x - lineWidth / 2, y - lineWidth / 2, lineWidth, lineWidth);
+    } else {
+      painting.current = true;
+      startPoint.current = { x, y };
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(x, y, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.closePath();
+    }
   };
 
   const onListenMouseMove = (x, y) => {
+    let ctx = canvasRef.current.getContext("2d");
     window.requestAnimationFrame(() => {
-      let ctx = canvasRef.current.getContext("2d");
       if (painting.current) {
         endPoint.current = { x, y };
         ctx.moveTo(startPoint.current.x, startPoint.current.y);
@@ -88,6 +106,14 @@ const Home = () => {
         ctx.stroke();
         ctx.closePath();
         startPoint.current = endPoint.current;
+      }
+      if (clearing.current) {
+        ctx.clearRect(
+          x - lineWidth / 2,
+          y - lineWidth / 2,
+          lineWidth,
+          lineWidth
+        );
       }
     });
   };
@@ -114,7 +140,7 @@ const Home = () => {
     canvas.width = document.documentElement.clientWidth;
     canvas.height = document.documentElement.clientHeight;
     initStyle();
-  }, [canvasRef.current]);
+  }, []);
 
   return (
     <div className="Home">
@@ -126,23 +152,27 @@ const Home = () => {
             className={classNames([
               "color-item",
               `color-item-${item.name}`,
-              { "color-item-active": index === colorIndex.current },
+              { "color-item-active": item.name === activeItem },
             ])}
             onClick={() => {
               onChooseSpecialColor(item.color);
-              colorIndex.current = index;
+              setActiveItem(item.name);
             }}
           ></div>
         ))}
+        <li onClick={onActiveEraser}>
+          <BsFillEraserFill />
+        </li>
         <li onClick={onClearScreen}>
-          <AiFillDelete />
+          <AiOutlineClear />
         </li>
         <li onClick={onSaveImg}>
           <AiTwotoneSave />
         </li>
+
         <select
           className="lineWidth"
-          defaultValue={5}
+          value={lineWidth}
           onChange={onChangeLineWidth}
         >
           <option value={50}>50</option>
