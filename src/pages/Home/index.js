@@ -10,8 +10,7 @@ const Home = () => {
   const canvasRef = useRef(null);
   const painting = useRef(false);
   const clearing = useRef(false);
-  const startPoint = useRef({ x: undefined, y: undefined });
-  const endPoint = useRef({ x: undefined, y: undefined });
+  const points = useRef([]);
   const [activeItem, setActiveItem] = useState(-1);
   const [status, setStatus] = useState("paint");
   const [lineWidth, setLineWidth] = useState(5);
@@ -24,11 +23,17 @@ const Home = () => {
     ctx.lineJoin = "round";
   }
 
+  const getMidPoint = (start, end) => {
+    return {
+      x: (start.x + end.x) / 2,
+      y: (start.y + end.y) / 2,
+    };
+  };
+
   const onRemoveState = () => {
+    points.current = [];
     painting.current = false;
     clearing.current = false;
-    startPoint.current = null;
-    endPoint.current = null;
   };
 
   const onClearScreen = () => {
@@ -84,10 +89,11 @@ const Home = () => {
     let ctx = canvasRef.current.getContext("2d");
     if (status === "eraser") {
       clearing.current = true;
+      // ctx.globalCompositeOperation = "destination-out";
       ctx.clearRect(x - lineWidth / 2, y - lineWidth / 2, lineWidth, lineWidth);
     } else {
       painting.current = true;
-      startPoint.current = { x, y };
+      points.current = [...points.current, { x, y }];
       ctx.save();
       ctx.beginPath();
       ctx.arc(x, y, 0, 0, Math.PI * 2);
@@ -98,14 +104,21 @@ const Home = () => {
 
   const onListenMouseMove = (x, y) => {
     let ctx = canvasRef.current.getContext("2d");
+
     window.requestAnimationFrame(() => {
       if (painting.current) {
-        endPoint.current = { x, y };
-        ctx.moveTo(startPoint.current.x, startPoint.current.y);
-        ctx.lineTo(endPoint.current.x, endPoint.current.y);
-        ctx.stroke();
-        ctx.closePath();
-        startPoint.current = endPoint.current;
+        points.current = [...points.current, { x, y }];
+        if (points.current.length >= 3) {
+          const lastPoints = points.current.slice(-3);
+          const [start, control, last] = lastPoints;
+          const startPoint = getMidPoint(start, control);
+          const lastPoint = getMidPoint(last, control);
+          ctx.beginPath();
+          ctx.moveTo(startPoint.x, startPoint.y);
+          ctx.quadraticCurveTo(control.x, control.y, lastPoint.x, lastPoint.y);
+          ctx.stroke();
+          ctx.closePath();
+        }
       }
       if (clearing.current) {
         ctx.clearRect(
