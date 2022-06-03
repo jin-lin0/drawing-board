@@ -31,6 +31,8 @@ const Home = () => {
   };
 
   const onRemoveState = () => {
+    let ctx = canvasRef.current.getContext("2d");
+    ctx.globalCompositeOperation = "source-over";
     points.current = [];
     painting.current = false;
     clearing.current = false;
@@ -89,8 +91,7 @@ const Home = () => {
     let ctx = canvasRef.current.getContext("2d");
     if (status === "eraser") {
       clearing.current = true;
-      // ctx.globalCompositeOperation = "destination-out";
-      ctx.clearRect(x - lineWidth / 2, y - lineWidth / 2, lineWidth, lineWidth);
+      ctx.globalCompositeOperation = "destination-out";
     } else {
       painting.current = true;
       points.current = [...points.current, { x, y }];
@@ -106,7 +107,7 @@ const Home = () => {
     let ctx = canvasRef.current.getContext("2d");
 
     window.requestAnimationFrame(() => {
-      if (painting.current) {
+      if (painting.current || clearing.current) {
         points.current = [...points.current, { x, y }];
         if (points.current.length >= 3) {
           const lastPoints = points.current.slice(-3);
@@ -120,21 +121,13 @@ const Home = () => {
           ctx.closePath();
         }
       }
-      if (clearing.current) {
-        ctx.clearRect(
-          x - lineWidth / 2,
-          y - lineWidth / 2,
-          lineWidth,
-          lineWidth
-        );
-      }
     });
   };
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    let ctx = canvas.getContext("2d");
     function onResize() {
+      const canvas = canvasRef.current;
+      let ctx = canvas.getContext("2d");
       let canvasData = ctx.getImageData(0, 0, canvas.width, canvas.height);
       canvas.width = document.documentElement.clientWidth;
       canvas.height = document.documentElement.clientHeight;
