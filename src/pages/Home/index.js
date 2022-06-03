@@ -14,6 +14,7 @@ const Home = () => {
   const [activeItem, setActiveItem] = useState(-1);
   const [status, setStatus] = useState("paint");
   const [lineWidth, setLineWidth] = useState(5);
+  const [color, setColor] = useState("#000000");
 
   function initStyle() {
     const canvas = canvasRef.current;
@@ -44,6 +45,10 @@ const Home = () => {
     let ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     setStatus("paint");
+    const colorName = colorPanelConfig.find(
+      (item) => item.color === color
+    ).name;
+    setActiveItem(colorName);
   };
 
   const onSaveImg = () => {
@@ -69,6 +74,7 @@ const Home = () => {
     const canvas = canvasRef.current;
     let ctx = canvas.getContext("2d");
     ctx.strokeStyle = e.target.value;
+    setColor(e.target.value);
     setStatus("paint");
     setActiveItem("color");
   };
@@ -84,6 +90,7 @@ const Home = () => {
     const canvas = canvasRef.current;
     let ctx = canvas.getContext("2d");
     ctx.strokeStyle = hex;
+    setColor(hex);
     setStatus("paint");
   };
 
@@ -150,45 +157,57 @@ const Home = () => {
 
   return (
     <div className="Home">
-      <ul className="panel">
-        <input type="color" onChange={onChooseColor} onClick={onChooseColor} />
-        {colorPanelConfig.map((item, index) => (
-          <div
-            key={index}
-            className={classNames([
-              "color-item",
-              `color-item-${item.name}`,
-              { "color-item-active": item.name === activeItem },
-            ])}
-            onClick={() => {
-              onChooseSpecialColor(item.color);
-              setActiveItem(item.name);
-            }}
-          ></div>
-        ))}
-        <li onClick={onActiveEraser}>
-          <BsFillEraserFill />
-        </li>
-        <li onClick={onClearScreen}>
-          <AiOutlineClear />
-        </li>
-        <li onClick={onSaveImg}>
-          <AiTwotoneSave />
-        </li>
+      <div className="panel">
+        <section className="panel-style">
+          <input
+            type="color"
+            onChange={onChooseColor}
+            onClick={onChooseColor}
+          />
+          {colorPanelConfig.map((item, index) => (
+            <div
+              key={index}
+              className={classNames([
+                "color-item",
+                `color-item-${item.name}`,
+                { "color-item-active": item.name === activeItem },
+              ])}
+              onClick={() => {
+                onChooseSpecialColor(item.color);
+                setActiveItem(item.name);
+              }}
+            ></div>
+          ))}
 
-        <select
-          className="lineWidth"
-          value={lineWidth}
-          onChange={onChangeLineWidth}
-        >
-          <option value={50}>50</option>
-          <option value={20}>20</option>
-          <option value={10}>10</option>
-          <option value={5}>5</option>
-          <option value={2}>2</option>
-          <option value={1}>1</option>
-        </select>
-      </ul>
+          <select
+            className="lineWidth"
+            value={lineWidth}
+            onChange={onChangeLineWidth}
+          >
+            <option value={50}>50</option>
+            <option value={20}>20</option>
+            <option value={10}>10</option>
+            <option value={5}>5</option>
+            <option value={2}>2</option>
+            <option value={1}>1</option>
+          </select>
+          <div
+            onClick={onActiveEraser}
+            className={classNames([
+              "function-item",
+              { "function-item-active": activeItem === "eraser" },
+            ])}
+          >
+            <BsFillEraserFill />
+          </div>
+          <div onClick={onClearScreen} className="function-item">
+            <AiOutlineClear />
+          </div>
+          <div onClick={onSaveImg} className="function-item">
+            <AiTwotoneSave />
+          </div>
+        </section>
+      </div>
 
       <canvas
         ref={canvasRef}
