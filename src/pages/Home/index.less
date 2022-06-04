@@ -77,7 +77,42 @@
     color: #0000ff;
     background: #0000ff;
   }
+  &-rainbow {
+    position: relative;
+    background: conic-gradient(
+      #9ed110,
+      #50b517,
+      #179067,
+      #476eaf,
+      #9f49ac,
+      #cc42a2,
+      #ff3ba7,
+      #ff5800,
+      #ff8100,
+      #feac00,
+      #ffcc00,
+      #ede604,
+      #9ed110
+    );
+    &-active {
+      position: relative;
+      &::after {
+        content: "";
+        position: absolute;
+        top: 0%;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: inherit;
+        filter: blur(2px) brightness(80%) opacity(0.8);
+        border: none;
+        border-radius: 50%;
+        transform: scale(1.2);
+        z-index: -1;
+      }
+    }
+  }
   &-active {
-    box-shadow: 0 0 10px currentColor;
+    box-shadow: 0 0 15px currentColor;
   }
 }

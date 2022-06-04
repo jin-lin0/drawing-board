@@ -15,6 +15,7 @@ const Home = () => {
   const [status, setStatus] = useState("paint");
   const [lineWidth, setLineWidth] = useState(5);
   const [color, setColor] = useState("#000000");
+  let colorDeg = 0;
 
   function initStyle() {
     const canvas = canvasRef.current;
@@ -45,10 +46,14 @@ const Home = () => {
     let ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     setStatus("paint");
-    const colorName = colorPanelConfig.find(
-      (item) => item.color === color
-    ).name;
-    setActiveItem(colorName);
+    const colorItem = colorPanelConfig.find((item) => item.color === color);
+    if (color === "rainbow") {
+      setActiveItem("rainbow");
+    } else if (colorItem && colorItem.name) {
+      setActiveItem(colorItem.name);
+    } else {
+      setActiveItem("");
+    }
   };
 
   const onSaveImg = () => {
@@ -115,6 +120,10 @@ const Home = () => {
 
     window.requestAnimationFrame(() => {
       if (painting.current || clearing.current) {
+        if (activeItem === "rainbow") {
+          colorDeg = colorDeg < 360 ? colorDeg + 1 : 0;
+          ctx.strokeStyle = `hsl(${colorDeg}, 100%, 50%)`;
+        }
         points.current = [...points.current, { x, y }];
         if (points.current.length >= 3) {
           const lastPoints = points.current.slice(-3);
@@ -164,6 +173,18 @@ const Home = () => {
             onChange={onChooseColor}
             onClick={onChooseColor}
           />
+          <div
+            className={classNames([
+              "color-item",
+              `color-item-rainbow`,
+              { "color-item-rainbow-active": "rainbow" === activeItem },
+            ])}
+            onClick={() => {
+              setColor("rainbow");
+              setStatus("paint");
+              setActiveItem("rainbow");
+            }}
+          ></div>
           {colorPanelConfig.map((item, index) => (
             <div
               key={index}
