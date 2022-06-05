@@ -17,18 +17,24 @@ const Home = () => {
   const [color, setColor] = useState("#000000");
   let colorDeg = 0;
 
-  function initStyle() {
-    const canvas = canvasRef.current;
-    let ctx = canvas.getContext("2d");
+  const initStyle = () => {
+    let ctx = canvasRef.current.getContext("2d");
     ctx.lineWidth = 5;
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
-  }
+  };
 
-  const getMidPoint = (start, end) => {
+  const initResizeStyle = () => {
+    let ctx = canvasRef.current.getContext("2d");
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+  };
+
+  const getMidPoint = (start, end, k = 1) => {
+    // k > 1 产生虚线效果，k = 1 产生实线效果，k < 1 产生多条线效果
     return {
-      x: (start.x + end.x) / 2,
-      y: (start.y + end.y) / 2,
+      x: (start.x + end.x * k) / (1 + k),
+      y: (start.y + end.y * k) / (1 + k),
     };
   };
 
@@ -76,8 +82,7 @@ const Home = () => {
   };
 
   const onChooseColor = (e) => {
-    const canvas = canvasRef.current;
-    let ctx = canvas.getContext("2d");
+    let ctx = canvasRef.current.getContext("2d");
     ctx.strokeStyle = e.target.value;
     setColor(e.target.value);
     setStatus("paint");
@@ -85,15 +90,13 @@ const Home = () => {
   };
 
   const onChangeLineWidth = (e) => {
-    const canvas = canvasRef.current;
-    let ctx = canvas.getContext("2d");
+    let ctx = canvasRef.current.getContext("2d");
     ctx.lineWidth = e.target.value;
     setLineWidth(e.target.value);
   };
 
   const onChooseSpecialColor = (hex) => {
-    const canvas = canvasRef.current;
-    let ctx = canvas.getContext("2d");
+    let ctx = canvasRef.current.getContext("2d");
     ctx.strokeStyle = hex;
     setColor(hex);
     setStatus("paint");
@@ -128,8 +131,8 @@ const Home = () => {
         if (points.current.length >= 3) {
           const lastPoints = points.current.slice(-3);
           const [start, control, last] = lastPoints;
-          const startPoint = getMidPoint(start, control);
-          const lastPoint = getMidPoint(last, control);
+          const startPoint = getMidPoint(start, control, 1);
+          const lastPoint = getMidPoint(last, control, 1);
           ctx.beginPath();
           ctx.moveTo(startPoint.x, startPoint.y);
           ctx.quadraticCurveTo(control.x, control.y, lastPoint.x, lastPoint.y);
@@ -147,21 +150,25 @@ const Home = () => {
       let canvasData = ctx.getImageData(0, 0, canvas.width, canvas.height);
       canvas.width = document.documentElement.clientWidth;
       canvas.height = document.documentElement.clientHeight;
-      //todo 颜色/粗细会丢失
+      ctx.lineWidth = lineWidth;
+      ctx.strokeStyle = color;
+      initResizeStyle();
       ctx.putImageData(canvasData, 0, 0);
     }
-    // window.onresize = onResize;
-    document.body.addEventListener("touchmove", (e) => e.preventDefault(), {
-      passive: false,
-    });
-    return window.removeEventListener("resize", onResize);
-  }, []);
+    window.addEventListener("resize", onResize);
+    return () => {
+      window.removeEventListener("resize", onResize);
+    };
+  }, [canvasRef.current, lineWidth]);
 
   useEffect(() => {
     let canvas = canvasRef.current;
     canvas.width = document.documentElement.clientWidth;
     canvas.height = document.documentElement.clientHeight;
     initStyle();
+    document.body.addEventListener("touchmove", (e) => e.preventDefault(), {
+      passive: false,
+    });
   }, []);
 
   return (
@@ -176,7 +183,7 @@ const Home = () => {
           <div
             className={classNames([
               "color-item",
-              `color-item-rainbow`,
+              "color-item-rainbow",
               { "color-item-rainbow-active": "rainbow" === activeItem },
             ])}
             onClick={() => {
