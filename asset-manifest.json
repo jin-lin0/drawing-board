@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/drawing-board/static/css/main.f9cf8f9b.css",
+    "main.js": "/drawing-board/static/js/main.640e2d42.js",
+    "static/js/787.9a19c650.chunk.js": "/drawing-board/static/js/787.9a19c650.chunk.js",
+    "index.html": "/drawing-board/index.html",
+    "main.f9cf8f9b.css.map": "/drawing-board/static/css/main.f9cf8f9b.css.map",
+    "main.640e2d42.js.map": "/drawing-board/static/js/main.640e2d42.js.map",
+    "787.9a19c650.chunk.js.map": "/drawing-board/static/js/787.9a19c650.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.f9cf8f9b.css",
+    "static/js/main.640e2d42.js"
+  ]
+}
