@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "author": "HJL",
   "private": true,
-  "homepage": "https://jin-lin0.github.io/drawing-board",
+  "description": "homepage: https://jin-lin0.github.io/drawing-board",
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^13.3.0",
